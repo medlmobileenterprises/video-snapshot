@@ -40,6 +40,29 @@ class VideoSnapshot {
     return dataURL;
   }
 
+  async takeSnapshotAsBlob(time?: VideoTime): Promise<Blob> {
+    const video = await this.loadVideo(time);
+    const canvas = document.createElement('canvas');
+
+    if (!video.videoWidth && !video.videoHeight) {
+      throw new Error("error retrieving video dimensions");
+    }
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const context = canvas.getContext('2d');
+
+    if (!context) {
+      throw new Error('error creating canvas context');
+    }
+
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    return new Promise<Blob>((resolve: any): void => {
+      canvas.toBlob(resolve);
+    });
+  }
+
   end() {
     this.revoke();
   }
